@@ -13,6 +13,8 @@
     button { margin-top: 20px; width: 100%; padding: 10px; background: #0077cc; color: white; border: none; border-radius: 6px; cursor: pointer; }
     button:hover { background: #005fa3; }
     .result { margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px; }
+    .wynik-list { margin: 0; padding-left: 20px; }
+    .wynik-list li { margin-bottom: 8px; }
   </style>
 </head>
 <body>
@@ -49,6 +51,7 @@ function oblicz() {
   let zuzycie = parseFloat(document.getElementById('zuzycie').value);
   let panel = parseFloat(document.getElementById('panel').value);
   let orientacja = parseFloat(document.getElementById('orientacja').value);
+  let orientacjaText = orientacja == 1 ? "Południe" : "Wschód-Zachód";
   let sprawnosc = parseFloat(document.getElementById('sprawnosc').value);
   let powierzchniaPanelu = parseFloat(document.getElementById('powierzchnia').value);
 
@@ -68,11 +71,18 @@ function oblicz() {
   else if (zuzycie >= 9000) magazyn = 20;
 
   document.getElementById('wynik').innerHTML = `
-    <b>Moc instalacji:</b> ${mocInstalacji.toFixed(2)} kWp<br>
-    <b>Liczba paneli:</b> ${liczbaPaneli}<br>
-    <b>Produkcja (orientacja):</b> ${produkcja.toFixed(0)} kWh/rok<br>
-    <b>Powierzchnia:</b> ${powierzchnia.toFixed(1)} m²<br>
-    <b>Magazyn energii:</b> ${magazyn} kWh
+    <ul class="wynik-list">
+      <li><b>Roczne zużycie energii:</b> ${zuzycie} kWh</li>
+      <li><b>Moc wybranego panelu:</b> ${panel} W</li>
+      <li><b>Orientacja dachu:</b> ${orientacjaText}</li>
+      <li><b>Sprawność systemu:</b> ${sprawnosc}</li>
+      <li><b>Powierzchnia 1 panelu:</b> ${powierzchniaPanelu} m²</li>
+      <li><b>Moc instalacji:</b> ${mocInstalacji.toFixed(2)} kWp</li>
+      <li><b>Liczba paneli:</b> ${liczbaPaneli}</li>
+      <li><b>Produkcja (orientacja):</b> ${produkcja.toFixed(0)} kWh/rok</li>
+      <li><b>Powierzchnia:</b> ${powierzchnia.toFixed(1)} m²</li>
+      <li><b>Magazyn energii:</b> ${magazyn} kWh</li>
+    </ul>
   `;
 }
 </script>
