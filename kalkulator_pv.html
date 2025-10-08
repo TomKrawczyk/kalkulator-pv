@@ -21,7 +21,7 @@
     <label>Roczne zużycie energii [kWh]</label>
     <input type="number" id="zuzycie" placeholder="np. 4000">
 
-    <label>Wybór paneli [W]</label>
+    <label>Wybór paneli [Wp]</label>
     <select id="panel">
       <option value="460">460</option>
       <option value="480">480</option>
@@ -29,15 +29,9 @@
 
     <label>Orientacja dachu</label>
     <select id="orientacja">
-      <option value="1">Południe</option>
-      <option value="0.85">Wschód-Zachód</option>
+      <option value="0.95">Południe</option>
+      <option value="0.9">Wschód-Zachód</option>
     </select>
-
-    <label>Sprawność systemu</label>
-    <input type="number" id="sprawnosc" value="0.8" step="0.01">
-
-    <label>Powierzchnia 1 panelu [m²]</label>
-    <input type="number" id="powierzchnia" value="2" step="0.1">
 
     <button onclick="oblicz()">OBLICZ</button>
 
@@ -49,24 +43,31 @@ function oblicz() {
   let zuzycie = parseFloat(document.getElementById('zuzycie').value);
   let panel = parseFloat(document.getElementById('panel').value);
   let orientacja = parseFloat(document.getElementById('orientacja').value);
-  let sprawnosc = parseFloat(document.getElementById('sprawnosc').value);
-  let powierzchniaPanelu = parseFloat(document.getElementById('powierzchnia').value);
+  const powierzchniaPanelu = 2.34; // Stała powierzchnia panelu w m²
 
   if (isNaN(zuzycie)) {
     alert("Podaj roczne zużycie energii!");
     return;
   }
 
-  let mocInstalacji = (zuzycie * 1.2) / 1000; 
-  let liczbaPaneli = Math.ceil((mocInstalacji * 1000) / panel);
-  let produkcja = mocInstalacji * 1000 * sprawnosc * orientacja;
+  // Obliczenie wstępnej mocy instalacji (z marginesem 20%)
+  let mocWstępna = (zuzycie * 1.2) / 1000; 
+  // Obliczenie liczby paneli (zaokrąglenie w górę)
+  let liczbaPaneli = Math.ceil((mocWstępna * 1000) / panel);
+  // Rzeczywista moc instalacji na podstawie liczby paneli
+  let mocInstalacji = (liczbaPaneli * panel) / 1000;
+  // Obliczenie rocznej produkcji energii
+  let produkcja = mocInstalacji * 1000 * orientacja;
+  // Obliczenie powierzchni
   let powierzchnia = liczbaPaneli * powierzchniaPanelu;
 
+  // Dobór magazynu energii
   let magazyn = 5;
   if (zuzycie >= 3000 && zuzycie < 6000) magazyn = 10;
   else if (zuzycie >= 6000 && zuzycie < 9000) magazyn = 15;
   else if (zuzycie >= 9000) magazyn = 20;
 
+  // Wyświetlenie wyników
   document.getElementById('wynik').innerHTML = `
     <b>Moc instalacji:</b> ${mocInstalacji.toFixed(2)} kWp<br>
     <b>Liczba paneli:</b> ${liczbaPaneli}<br>
