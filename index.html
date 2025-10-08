@@ -55,6 +55,19 @@
       background: #e8f5e9;
       border-radius: 8px;
     }
+    .extra-calc {
+      margin-top: 25px;
+      padding: 15px;
+      background: #f9fbe7;
+      border-radius: 8px;
+      display: none;
+    }
+    .extra-result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #ffe0b2;
+      border-radius: 8px;
+    }
     footer {
       text-align: center;
       margin-top: 20px;
@@ -87,6 +100,19 @@
     <button onclick="oblicz()">OBLICZ</button>
 
     <div class="result" id="wynik"></div>
+
+    <!-- Nowa sekcja do obliczenia zwrotu -->
+    <div class="extra-calc" id="extra-calc">
+      <h3>Oblicz okres zwrotu inwestycji</h3>
+      <label>Obecna cena prądu [zł/kWh]</label>
+      <input type="number" id="cenaPradu" placeholder="np. 0.85" step="0.01" min="0">
+
+      <label>Cena instalacji [zł]</label>
+      <input type="number" id="cenaInstalacji" placeholder="np. 35000" min="0">
+
+      <button onclick="obliczZwrot()">Oblicz zwrot inwestycji</button>
+      <div class="extra-result" id="extra-result"></div>
+    </div>
   </div>
 
   <footer>
@@ -94,6 +120,8 @@
   </footer>
 
 <script>
+let ostatniaProdukcja = 0; // zapamiętana produkcja do kalkulacji zwrotu
+
 function oblicz() {
   let zuzycie = parseFloat(document.getElementById('zuzycie').value);
   let panel = parseFloat(document.getElementById('panel').value);
@@ -145,6 +173,41 @@ function oblicz() {
     <b>Produkcja (orientacja):</b> ${produkcja.toFixed(0)} kWh/rok<br>
     <b>Powierzchnia:</b> ${powierzchnia.toFixed(1)} m²<br>
     <b>Magazyn energii (pojemność):</b> ${magazynPojemnosc} kWh (moc: ${mocMagazynu} kW)
+  `;
+
+  // Zapamiętaj ostatnią produkcję energii (do obliczeń zwrotu)
+  ostatniaProdukcja = produkcja;
+
+  // Wyświetl sekcję kalkulacji zwrotu
+  document.getElementById('extra-calc').style.display = 'block';
+  // Wyczyść poprzedni wynik zwrotu
+  document.getElementById('extra-result').innerHTML = '';
+}
+
+function obliczZwrot() {
+  let cenaPradu = parseFloat(document.getElementById('cenaPradu').value);
+  let cenaInstalacji = parseFloat(document.getElementById('cenaInstalacji').value);
+
+  if (isNaN(cenaPradu) || cenaPradu <= 0) {
+    alert("Podaj poprawną cenę prądu!");
+    return;
+  }
+  if (isNaN(cenaInstalacji) || cenaInstalacji <= 0) {
+    alert("Podaj poprawną cenę instalacji!");
+    return;
+  }
+  if (!ostatniaProdukcja || ostatniaProdukcja <= 0) {
+    alert("Najpierw wylicz parametry instalacji!");
+    return;
+  }
+
+  let roczneKorzyści = ostatniaProdukcja * cenaPradu;
+  let okresZwrotu = cenaInstalacji / roczneKorzyści;
+
+  document.getElementById('extra-result').innerHTML = `
+    <b>Roczna wartość produkcji energii:</b> ${roczneKorzyści.toFixed(0)} zł<br>
+    <b>Cena instalacji:</b> ${cenaInstalacji.toFixed(0)} zł<br>
+    <b>Szacowany okres zwrotu inwestycji:</b> ${okresZwrotu.toFixed(1)} lata
   `;
 }
 </script>
