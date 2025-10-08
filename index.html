@@ -121,9 +121,11 @@ function oblicz() {
 
   // Dobór magazynu energii
   let magazyn = 5;
-  if (zuzycie >= 3000 && zuzycie < 6000) magazyn = 10;
-  else if (zuzycie >= 6000 && zuzycie < 9000) magazyn = 15;
-  else if (zuzycie >= 9000) magazyn = 20;
+  if (zuzycie >= 3000 && zuzycie < 6000) magazyn = 5;
+  else if (zuzycie >= 6000 && zuzycie < 9000) magazyn = 10;
+  else if (zuzycie >= 9000 && zuzycie < 12000 ) magazyn = 15;
+  else if (zuzycie >= 12000 && zuzycie < 15000 ) magazyn = 20;
+  else if (zuzycie >= 15000 && zuzycie < 25000 ) magazyn = 25;
 
   // Wyświetlenie wyników
   document.getElementById('wynik').innerHTML = `
