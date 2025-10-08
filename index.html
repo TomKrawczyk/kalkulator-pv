@@ -5,41 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kalkulator PV</title>
   <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      background: #f8f8f8; 
-      padding: 20px; 
-    }
-    .container { 
-      max-width: 600px; 
-      margin: auto; 
-      background: #fff; 
-      padding: 20px; 
-      border-radius: 12px; 
-      box-shadow: 0 0 12px rgba(0,0,0,0.1); 
-      background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80');
-      background-size: cover;
-      background-position: center;
-      position: relative;
-      z-index: 1;
-      background-repeat: no-repeat;
-    }
-    .container::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(255,255,255,0.85);
-      border-radius: 12px;
-      z-index: -1;
-    }
+    body { font-family: Arial, sans-serif; background: #f8f8f8; padding: 20px; }
+    .container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 0 12px rgba(0,0,0,0.1); }
     h2 { text-align: center; }
     label { display: block; margin-top: 15px; font-weight: bold; }
     input, select { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 6px; }
     button { margin-top: 20px; width: 100%; padding: 10px; background: #0077cc; color: white; border: none; border-radius: 6px; cursor: pointer; }
     button:hover { background: #005fa3; }
     .result { margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 8px; }
-    .wynik-list { margin: 0; padding-left: 20px; }
-    .wynik-list li { margin-bottom: 8px; }
   </style>
 </head>
 <body>
@@ -56,15 +29,9 @@
 
     <label>Orientacja dachu</label>
     <select id="orientacja">
-      <option value="1">Południe</option>
-      <option value="0.85">Wschód-Zachód</option>
+      <option value="0.95">Południe</option>
+      <option value="0.9">Wschód-Zachód</option>
     </select>
-
-    <label>Sprawność systemu</label>
-    <input type="number" id="sprawnosc" value="0.9" step="0.1">
-
-    <label>Powierzchnia 1 panelu [m²]</label>
-    <input type="number" id="powierzchnia" value="2" step="0.1">
 
     <button onclick="oblicz()">OBLICZ</button>
 
@@ -76,48 +43,29 @@ function oblicz() {
   let zuzycie = parseFloat(document.getElementById('zuzycie').value);
   let panel = parseFloat(document.getElementById('panel').value);
   let orientacja = parseFloat(document.getElementById('orientacja').value);
-  let orientacjaText = orientacja == 1 ? "Południe" : "Wschód-Zachód";
-  let sprawnosc = parseFloat(document.getElementById('sprawnosc').value);
-  let powierzchniaPanelu = parseFloat(document.getElementById('powierzchnia').value);
+  const powierzchniaPanelu = 2.34; // Stała powierzchnia panelu w m²
 
   if (isNaN(zuzycie)) {
     alert("Podaj roczne zużycie energii!");
     return;
   }
 
-  // Poprawiona logika przewymiarowania instalacji
-  let mocInstalacji;
-  if (orientacja == 1) {
-    mocInstalacji = (zuzycie * 1.2) / 1000;
-  } else {
-    mocInstalacji = (zuzycie * 1.2 * 1.2) / 1000; // dodatkowe przewymiarowanie o 20% dla Wschód-Zachód
-  }
-
+  let mocInstalacji = (zuzycie * 1.2) / 1000; 
   let liczbaPaneli = Math.ceil((mocInstalacji * 1000) / panel);
-  let produkcja = mocInstalacji * 1000 * sprawnosc * orientacja;
+  let produkcja = mocInstalacji * 1000 * orientacja;
   let powierzchnia = liczbaPaneli * powierzchniaPanelu;
 
   let magazyn = 5;
-  if (zuzycie >= 3000 && zuzycie < 6000) magazyn = 5;
-  else if (zuzycie >= 6000 && zuzycie < 9000) magazyn = 10;
-  else if (zuzycie >= 9000 && zuzycie < 12000) magazyn = 15;
-  else if (zuzycie >= 12000 && zuzycie < 16000) magazyn = 20;
-  else if (zuzycie >= 16000 && zuzycie < 20000) magazyn = 25;
-  else if (zuzycie >= 20000) magazyn = 30;
+  if (zuzycie >= 3000 && zuzycie < 6000) magazyn = 10;
+  else if (zuzycie >= 6000 && zuzycie < 9000) magazyn = 15;
+  else if (zuzycie >= 9000) magazyn = 20;
 
   document.getElementById('wynik').innerHTML = `
-    <ul class="wynik-list">
-      <li><b>Roczne zużycie energii:</b> ${zuzycie} kWh</li>
-      <li><b>Moc wybranego panelu:</b> ${panel} W</li>
-      <li><b>Orientacja dachu:</b> ${orientacjaText}</li>
-      <li><b>Sprawność systemu:</b> ${sprawnosc}</li>
-      <li><b>Powierzchnia 1 panelu:</b> ${powierzchniaPanelu} m²</li>
-      <li><b>Moc instalacji:</b> ${mocInstalacji.toFixed(2)} kWp</li>
-      <li><b>Liczba paneli:</b> ${liczbaPaneli}</li>
-      <li><b>Produkcja (orientacja):</b> ${produkcja.toFixed(0)} kWh/rok</li>
-      <li><b>Powierzchnia:</b> ${powierzchnia.toFixed(1)} m²</li>
-      <li><b>Magazyn energii:</b> ${magazyn} kWh</li>
-    </ul>
+    <b>Moc instalacji:</b> ${mocInstalacji.toFixed(2)} kWp<br>
+    <b>Liczba paneli:</b> ${liczbaPaneli}<br>
+    <b>Produkcja (orientacja):</b> ${produkcja.toFixed(0)} kWh/rok<br>
+    <b>Powierzchnia:</b> ${powierzchnia.toFixed(1)} m²<br>
+    <b>Magazyn energii:</b> ${magazyn} kWh
   `;
 }
 </script>
