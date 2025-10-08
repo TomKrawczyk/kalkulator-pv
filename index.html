@@ -87,8 +87,8 @@
 
     <label>Wybór paneli [Wp]</label>
     <select id="panel">
-      <option value="450">450</option>
-      <option value="480">480</option>
+      <option value="450">450 (dla instalacji jednofazowych do 3,66 kWp)</option>
+      <option value="480">480 (dla instalacji powyżej 3,66 kWp)</option>
     </select>
 
     <label>Orientacja dachu</label>
@@ -129,10 +129,10 @@ let ostatniaProdukcja = 0; // zapamiętana produkcja do kalkulacji zwrotu
 
 function oblicz() {
   let zuzycie = parseFloat(document.getElementById('zuzycie').value);
-  let panel = parseFloat(document.getElementById('panel').value);
   let orientacja = parseFloat(document.getElementById('orientacja').value);
   let trybMagazynu = document.getElementById('trybMagazynu').value;
   const powierzchniaPanelu = 2.34; // Stała powierzchnia panelu w m²
+  const limitJednofazowy = 3.66; // Limit dla instalacji jednofazowej w kWp
 
   if (isNaN(zuzycie)) {
     alert("Podaj roczne zużycie energii!");
@@ -141,6 +141,11 @@ function oblicz() {
 
   // Obliczenie wstępnej mocy instalacji (z marginesem 20%)
   let mocWstępna = (zuzycie * 1.2) / 1000;
+
+  // Automatyczny wybór paneli: 450 Wp dla instalacji <= 3,66 kWp, 480 Wp powyżej
+  let panel = mocWstępna <= limitJednofazowy ? 450 : 480;
+  let typInstalacji = mocWstępna <= limitJednofazowy ? "jednofazowa" : "trójfazowa";
+
   // Obliczenie liczby paneli (zaokrąglenie w górę)
   let liczbaPaneli = Math.ceil((mocWstępna * 1000) / panel);
   // Rzeczywista moc instalacji na podstawie liczby paneli
@@ -179,7 +184,8 @@ function oblicz() {
   // Wyświetlenie wyników
   document.getElementById('wynik').innerHTML = `
     <b>Zalecana moc umowna przyłącza:</b> ${zalecanaMocPrzyłączeniowa} kW (tryb magazynu: ${trybMagazynu === 'export' ? 'eksport do sieci' : 'tylko zużycie lokalne'})<br>
-    <b>Moc instalacji:</b> ${mocInstalacji.toFixed(2)} kWp<br>
+    <b>Moc instalacji:</b> ${mocInstalacji.toFixed(2)} kWp (${typInstalacji})<br>
+    <b>Wybrane panele:</b> ${panel} Wp (automatyczny wybór dla instalacji ${typInstalacji})<br>
     <b>Liczba paneli:</b> ${liczbaPaneli}<br>
     <b>Produkcja (orientacja):</b> ${produkcja.toFixed(0)} kWh/rok<br>
     <b>Powierzchnia:</b> ${powierzchnia.toFixed(1)} m²<br>
