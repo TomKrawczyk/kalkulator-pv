@@ -75,6 +75,32 @@
       color: #fff;
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
     }
+
+    /* --- Responsywność dla urządzeń mobilnych --- */
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px;
+        max-width: 100%;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      body {
+        padding: 5px;
+        font-size: 0.98em;
+      }
+      h2 {
+        font-size: 1.3em;
+      }
+      label, input, select, button {
+        font-size: 1em;
+      }
+      .result, .extra-calc, .extra-result {
+        padding: 10px;
+      }
+      footer {
+        font-size: 0.9em;
+      }
+    }
   </style>
 </head>
 <body>
@@ -165,3 +191,66 @@ function oblicz() {
   let magazynPojemnosc;
   if (mocInstalacji <= 5) magazynPojemnosc = 5;
   else if (mocInstalacji > 5 && mocInstalacji <= 9) magazynPojemnosc = 10;
+  else magazynPojemnosc = 15;
+
+  // Wynik główny
+  let wynik = `
+    <b>Typ instalacji:</b> ${typInstalacji}<br>
+    <b>Liczba paneli:</b> ${liczbaPaneli} x ${panel} Wp<br>
+    <b>Moc instalacji:</b> ${mocInstalacji.toFixed(2)} kWp<br>
+    <b>Szacowana roczna produkcja:</b> ${produkcja.toFixed(0)} kWh<br>
+    <b>Powierzchnia dachu potrzebna:</b> ${powierzchnia.toFixed(1)} m²<br>
+    <b>Magazyn energii:</b> ${magazynPojemnosc} kWh
+  `;
+
+  if (trybMagazynu === 'export') {
+    wynik += "<br><b>Tryb rozliczenia:</b> Eksport energii do sieci";
+  } else {
+    wynik += "<br><b>Tryb rozliczenia:</b> Bez eksportu (tylko zużycie lokalne)";
+  }
+
+  document.getElementById('wynik').innerHTML = wynik;
+
+  // Pokazanie kalkulatora zwrotu
+  document.getElementById('extra-calc').style.display = 'block';
+  ostatniaProdukcja = produkcja;
+}
+
+function obliczZwrot() {
+  let cenaPradu = parseFloat(document.getElementById('cenaPradu').value);
+  let cenaInstalacji = parseFloat(document.getElementById('cenaInstalacji').value);
+  let trybKalkulacji = document.getElementById('trybKalkulacji').value;
+
+  if (isNaN(cenaPradu) || isNaN(cenaInstalacji) || ostatniaProdukcja === 0) {
+    alert("Podaj wszystkie dane do kalkulacji zwrotu!");
+    return;
+  }
+
+  let lata = 0, oszczednosci = 0, wynikZwrotu = "";
+
+  if (trybKalkulacji === "standardowa") {
+    lata = cenaInstalacji / (cenaPradu * ostatniaProdukcja);
+    oszczednosci = cenaPradu * ostatniaProdukcja;
+    wynikZwrotu = `
+      <b>Szacowany okres zwrotu:</b> ${lata.toFixed(1)} lat<br>
+      <b>Roczne oszczędności:</b> ${oszczednosci.toFixed(2)} zł
+    `;
+  } else {
+    // Optymistyczna - 5% wzrost ceny prądu rocznie
+    let suma = 0, cena = cenaPradu;
+    while (suma < cenaInstalacji && lata < 50) {
+      suma += cena * ostatniaProdukcja;
+      cena *= 1.05;
+      lata++;
+    }
+    oszczednosci = suma;
+    wynikZwrotu = `
+      <b>Szacowany okres zwrotu:</b> ${lata} lat<br>
+      <b>Łączne oszczędności w tym czasie:</b> ${oszczednosci.toFixed(2)} zł
+    `;
+  }
+  document.getElementById('extra-result').innerHTML = wynikZwrotu;
+}
+</script>
+</body>
+</html>
