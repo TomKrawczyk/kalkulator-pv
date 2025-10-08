@@ -115,6 +115,12 @@
       <label>Cena instalacji [zł]</label>
       <input type="number" id="cenaInstalacji" placeholder="np. 35000" min="0">
 
+      <label>Tryb kalkulacji zwrotu</label>
+      <select id="trybKalkulacji">
+        <option value="standardowa">Standardowa (stała cena prądu)</option>
+        <option value="optymistyczna">Optymistyczna (5% wzrostu ceny prądu rocznie)</option>
+      </select>
+
       <button onclick="obliczZwrot()">Oblicz zwrot inwestycji</button>
       <div class="extra-result" id="extra-result"></div>
     </div>
@@ -125,7 +131,7 @@
   </footer>
 
 <script>
-let ostatniaProdukcja = 0; // zapamiętana produkcja do kalkulacji zwrotu
+let ostatniaProdukcja = 0; // Zapamiętana produkcja do kalkulacji zwrotu
 
 function oblicz() {
   let zuzycie = parseFloat(document.getElementById('zuzycie').value);
@@ -159,74 +165,3 @@ function oblicz() {
   let magazynPojemnosc;
   if (mocInstalacji <= 5) magazynPojemnosc = 5;
   else if (mocInstalacji > 5 && mocInstalacji <= 9) magazynPojemnosc = 10;
-  else if (mocInstalacji > 9 && mocInstalacji <= 12) magazynPojemnosc = 15;
-  else if (mocInstalacji > 12 && mocInstalacji <= 15) magazynPojemnosc = 20;
-  else if (mocInstalacji > 15 && mocInstalacji <= 25) magazynPojemnosc = 25;
-  else magazynPojemnosc = "Skonsultuj się z ekspertem dla instalacji powyżej 25 kWp";
-
-  // Założenie: Moc magazynu (kW) = pojemność (kWh) – uproszczenie dla szybkości ładowania/rozładowania
-  let mocMagazynu = typeof magazynPojemnosc === 'number' ? magazynPojemnosc : 0;
-
-  // Obliczenie zalecanej mocy umownej przyłącza (standardowe wartości dla prosumentów w PL 2025)
-  let suma;
-  if (trybMagazynu === 'export') {
-    // Suma = PV + magazyn (eksport do sieci) + 20% zapasu na zużycie domowe
-    suma = mocInstalacji + mocMagazynu;
-  } else {
-    // Suma = tylko PV (brak eksportu magazynu) + 20% zapasu
-    suma = mocInstalacji;
-  }
-  let zapas = suma * 0.2; // 20% zapasu na potrzeby domowe
-  let sumaZZapasem = suma + zapas;
-  let standardoweMoc = [12, 15, 16, 25, 40, 63];
-  let zalecanaMocPrzyłączeniowa = standardoweMoc.find(moc => moc >= sumaZZapasem) || "Powyżej 63 kW - skonsultuj z OSD";
-
-  // Wyświetlenie wyników
-  document.getElementById('wynik').innerHTML = `
-    <b>Zalecana moc umowna przyłącza:</b> ${zalecanaMocPrzyłączeniowa} kW (tryb magazynu: ${trybMagazynu === 'export' ? 'eksport do sieci' : 'tylko zużycie lokalne'})<br>
-    <b>Moc instalacji:</b> ${mocInstalacji.toFixed(2)} kWp (${typInstalacji})<br>
-    <b>Wybrane panele:</b> ${panel} Wp (automatyczny wybór dla instalacji ${typInstalacji})<br>
-    <b>Liczba paneli:</b> ${liczbaPaneli}<br>
-    <b>Produkcja (orientacja):</b> ${produkcja.toFixed(0)} kWh/rok<br>
-    <b>Powierzchnia:</b> ${powierzchnia.toFixed(1)} m²<br>
-    <b>Magazyn energii (pojemność):</b> ${magazynPojemnosc} kWh (moc: ${mocMagazynu} kW)
-  `;
-
-  // Zapamiętaj ostatnią produkcję energii (do obliczeń zwrotu)
-  ostatniaProdukcja = produkcja;
-
-  // Wyświetl sekcję kalkulacji zwrotu
-  document.getElementById('extra-calc').style.display = 'block';
-  // Wyczyść poprzedni wynik zwrotu
-  document.getElementById('extra-result').innerHTML = '';
-}
-
-function obliczZwrot() {
-  let cenaPradu = parseFloat(document.getElementById('cenaPradu').value);
-  let cenaInstalacji = parseFloat(document.getElementById('cenaInstalacji').value);
-
-  if (isNaN(cenaPradu) || cenaPradu <= 0) {
-    alert("Podaj poprawną cenę prądu!");
-    return;
-  }
-  if (isNaN(cenaInstalacji) || cenaInstalacji <= 0) {
-    alert("Podaj poprawną cenę instalacji!");
-    return;
-  }
-  if (!ostatniaProdukcja || ostatniaProdukcja <= 0) {
-    alert("Najpierw wylicz parametry instalacji!");
-    return;
-  }
-
-  let roczneKorzyści = ostatniaProdukcja * cenaPradu;
-  let okresZwrotu = cenaInstalacji / roczneKorzyści;
-
-  document.getElementById('extra-result').innerHTML = `
-    <b>Roczna wartość produkcji energii:</b> ${roczneKorzyści.toFixed(0)} zł<br>
-    <b>Cena instalacji:</b> ${cenaInstalacji.toFixed(0)} zł<br>
-    <b>Szacowany okres zwrotu inwestycji:</b> ${okresZwrotu.toFixed(1)} lata
-  `;
-}
-</script>
-</body>
-</html>
