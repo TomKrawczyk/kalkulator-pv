@@ -119,23 +119,36 @@ function oblicz() {
   // Redukcja CO2
   let redukcjaCO2 = produkcja * emisjaCO2;
 
-  // Dobór magazynu energii na podstawie mocy instalacji
-  let magazyn;
-  if (mocInstalacji <= 5) magazyn = 5;
-  else if (mocInstalacji > 5 && mocInstalacji <= 9) magazyn = 10;
-  else if (mocInstalacji > 9 && mocInstalacji <= 12) magazyn = 15;
-  else if (mocInstalacji > 12 && mocInstalacji <= 15) magazyn = 20;
-  else if (mocInstalacji > 15 && mocInstalacji <= 25) magazyn = 25;
-  else magazyn = "Skonsultuj się z ekspertem dla instalacji powyżej 25 kWp";
+  // Dobór pojemności magazynu energii na podstawie mocy instalacji (w kWh)
+  let magazynPojemnosc;
+  if (mocInstalacji <= 5) magazynPojemnosc = 5;
+  else if (mocInstalacji > 5 && mocInstalacji <= 9) magazynPojemnosc = 10;
+  else if (mocInstalacji > 9 && mocInstalacji <= 12) magazynPojemnosc = 15;
+  else if (mocInstalacji > 12 && mocInstalacji <= 15) magazynPojemnosc = 20;
+  else if (mocInstalacji > 15 && mocInstalacji <= 25) magazynPojemnosc = 25;
+  else magazynPojemnosc = "Skonsultuj się z ekspertem dla instalacji powyżej 25 kWp";
+
+  // Założenie: Moc magazynu (kW) = pojemność (kWh) – uproszczenie dla szybkości ładowania/rozładowania
+  let mocMagazynu = typeof magazynPojemnosc === 'number' ? magazynPojemnosc : 0;
+
+  // Obliczenie zalecanej mocy przyłączeniowej (suma PV + moc magazynu, następna standardowa wartość)
+  let suma = mocInstalacji + mocMagazynu;
+  let zalecanaMocPrzyłączeniowa;
+  if (suma <= 12.5) zalecanaMocPrzyłączeniowa = "12.5";
+  else if (suma <= 25) zalecanaMocPrzyłączeniowa = "25";
+  else if (suma <= 40) zalecanaMocPrzyłączeniowa = "40";
+  else if (suma <= 63) zalecanaMocPrzyłączeniowa = "63";
+  else zalecanaMocPrzyłączeniowa = "Powyżej 63 kW - skonsultuj z OSD";
 
   // Wyświetlenie wyników
   document.getElementById('wynik').innerHTML = `
+    <b>Zalecana moc przyłączeniowa:</b> ${zalecanaMocPrzyłączeniowa} kW<br>
     <b>Moc instalacji:</b> ${mocInstalacji.toFixed(2)} kWp<br>
     <b>Liczba paneli:</b> ${liczbaPaneli}<br>
     <b>Produkcja (orientacja):</b> ${produkcja.toFixed(0)} kWh/rok<br>
     <b>Powierzchnia:</b> ${powierzchnia.toFixed(1)} m²<br>
     <b>Redukcja emisji CO2:</b> ${redukcjaCO2.toFixed(0)} kg/rok<br>
-    <b>Magazyn energii:</b> ${magazyn} kWh
+    <b>Magazyn energii (pojemność):</b> ${magazynPojemnosc} kWh (moc: ${mocMagazynu} kW)
   `;
 }
 </script>
