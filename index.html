@@ -119,13 +119,14 @@ function oblicz() {
   // Redukcja CO2
   let redukcjaCO2 = produkcja * emisjaCO2;
 
-  // Dobór magazynu energii
-  let magazyn = 5;
-  if (zuzycie >= 3000 && zuzycie < 6000) magazyn = 5;
-  else if (zuzycie >= 6000 && zuzycie < 9000) magazyn = 10;
-  else if (zuzycie >= 9000 && zuzycie < 12000 ) magazyn = 15;
-  else if (zuzycie >= 12000 && zuzycie < 15000 ) magazyn = 20;
-  else if (zuzycie >= 15000 && zuzycie < 25000 ) magazyn = 25;
+  // Dobór magazynu energii na podstawie mocy instalacji
+  let magazyn;
+  if (mocInstalacji <= 5) magazyn = 5;
+  else if (mocInstalacji > 5 && mocInstalacji <= 9) magazyn = 10;
+  else if (mocInstalacji > 9 && mocInstalacji <= 12) magazyn = 15;
+  else if (mocInstalacji > 12 && mocInstalacji <= 15) magazyn = 20;
+  else if (mocInstalacji > 15 && mocInstalacji <= 25) magazyn = 25;
+  else magazyn = "Skonsultuj się z ekspertem dla instalacji powyżej 25 kWp";
 
   // Wyświetlenie wyników
   document.getElementById('wynik').innerHTML = `
