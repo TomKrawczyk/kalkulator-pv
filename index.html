@@ -99,7 +99,6 @@ function oblicz() {
   let panel = parseFloat(document.getElementById('panel').value);
   let orientacja = parseFloat(document.getElementById('orientacja').value);
   const powierzchniaPanelu = 2.34; // Stała powierzchnia panelu w m²
-  const emisjaCO2 = 0.8; // kg CO2/kWh dla energii z sieci
 
   if (isNaN(zuzycie)) {
     alert("Podaj roczne zużycie energii!");
@@ -116,8 +115,6 @@ function oblicz() {
   let produkcja = mocInstalacji * 1000 * orientacja;
   // Obliczenie powierzchni
   let powierzchnia = liczbaPaneli * powierzchniaPanelu;
-  // Redukcja CO2
-  let redukcjaCO2 = produkcja * emisjaCO2;
 
   // Dobór pojemności magazynu energii na podstawie mocy instalacji (w kWh)
   let magazynPojemnosc;
@@ -147,7 +144,6 @@ function oblicz() {
     <b>Liczba paneli:</b> ${liczbaPaneli}<br>
     <b>Produkcja (orientacja):</b> ${produkcja.toFixed(0)} kWh/rok<br>
     <b>Powierzchnia:</b> ${powierzchnia.toFixed(1)} m²<br>
-    <b>Redukcja emisji CO2:</b> ${redukcjaCO2.toFixed(0)} kg/rok<br>
     <b>Magazyn energii (pojemność):</b> ${magazynPojemnosc} kWh (moc: ${mocMagazynu} kW)
   `;
 }
