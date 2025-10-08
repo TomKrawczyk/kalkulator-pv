@@ -97,11 +97,16 @@
       <option value="0.9">Wschód-Zachód</option>
     </select>
 
+    <label>Tryb magazynu energii</label>
+    <select id="trybMagazynu">
+      <option value="export">Eksport energii do sieci</option>
+      <option value="no-export">Bez eksportu (tylko zużycie lokalne)</option>
+    </select>
+
     <button onclick="oblicz()">OBLICZ</button>
 
     <div class="result" id="wynik"></div>
 
-    <!-- Nowa sekcja do obliczenia zwrotu -->
     <div class="extra-calc" id="extra-calc">
       <h3>Oblicz okres zwrotu inwestycji</h3>
       <label>Obecna cena prądu [zł/kWh]</label>
@@ -126,6 +131,7 @@ function oblicz() {
   let zuzycie = parseFloat(document.getElementById('zuzycie').value);
   let panel = parseFloat(document.getElementById('panel').value);
   let orientacja = parseFloat(document.getElementById('orientacja').value);
+  let trybMagazynu = document.getElementById('trybMagazynu').value;
   const powierzchniaPanelu = 2.34; // Stała powierzchnia panelu w m²
 
   if (isNaN(zuzycie)) {
@@ -156,18 +162,23 @@ function oblicz() {
   // Założenie: Moc magazynu (kW) = pojemność (kWh) – uproszczenie dla szybkości ładowania/rozładowania
   let mocMagazynu = typeof magazynPojemnosc === 'number' ? magazynPojemnosc : 0;
 
-  // Obliczenie zalecanej mocy przyłączeniowej (suma PV + moc magazynu, następna standardowa wartość)
-  let suma = mocInstalacji + mocMagazynu;
-  let zalecanaMocPrzyłączeniowa;
-  if (suma <= 12.5) zalecanaMocPrzyłączeniowa = "12.5";
-  else if (suma <= 25) zalecanaMocPrzyłączeniowa = "32";
-  else if (suma <= 40) zalecanaMocPrzyłączeniowa = "40";
-  else if (suma <= 63) zalecanaMocPrzyłączeniowa = "50";
-  else zalecanaMocPrzyłączeniowa = "Powyżej 63 kW - skonsultuj z OSD";
+  // Obliczenie zalecanej mocy umownej przyłącza (standardowe wartości dla prosumentów w PL 2025)
+  let suma;
+  if (trybMagazynu === 'export') {
+    // Suma = PV + magazyn (eksport do sieci) + 20% zapasu na zużycie domowe
+    suma = mocInstalacji + mocMagazynu;
+  } else {
+    // Suma = tylko PV (brak eksportu magazynu) + 20% zapasu
+    suma = mocInstalacji;
+  }
+  let zapas = suma * 0.2; // 20% zapasu na potrzeby domowe
+  let sumaZZapasem = suma + zapas;
+  let standardoweMoc = [12, 15, 16, 25, 40, 63];
+  let zalecanaMocPrzyłączeniowa = standardoweMoc.find(moc => moc >= sumaZZapasem) || "Powyżej 63 kW - skonsultuj z OSD";
 
   // Wyświetlenie wyników
   document.getElementById('wynik').innerHTML = `
-    <b>Minimalna zalecana moc przyłączeniowa:</b> ${zalecanaMocPrzyłączeniowa} kW<br>
+    <b>Zalecana moc umowna przyłącza:</b> ${zalecanaMocPrzyłączeniowa} kW (tryb magazynu: ${trybMagazynu === 'export' ? 'eksport do sieci' : 'tylko zużycie lokalne'})<br>
     <b>Moc instalacji:</b> ${mocInstalacji.toFixed(2)} kWp<br>
     <b>Liczba paneli:</b> ${liczbaPaneli}<br>
     <b>Produkcja (orientacja):</b> ${produkcja.toFixed(0)} kWh/rok<br>
