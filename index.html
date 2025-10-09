@@ -113,8 +113,8 @@
 
     <label>Wybór paneli [Wp]</label>
     <select id="panel">
-      <option value="450">450 (dla instalacji jednofazowych do 3,66 kWp)</option>
-      <option value="480">480 (dla instalacji powyżej 3,66 kWp)</option>
+      <option value="450">450 (dla instalacji jednofazowych do 3,68 kWp)</option>
+      <option value="480">480 (dla instalacji powyżej 3,68 kWp)</option>
     </select>
 
     <label>Orientacja dachu</label>
@@ -125,8 +125,8 @@
 
     <label>Tryb magazynu energii</label>
     <select id="trybMagazynu">
-      <option value="export">Eksport energii do sieci</option>
-      <option value="no-export">Bez eksportu (tylko zużycie lokalne)</option>
+      <option value="export">On-grid (autokonsumpcja)</option>
+      <option value="no-export">Off-grid</option>
     </select>
 
     <button onclick="oblicz()">OBLICZ</button>
@@ -144,7 +144,7 @@
       <label>Tryb kalkulacji zwrotu</label>
       <select id="trybKalkulacji">
         <option value="standardowa">Standardowa (stała cena prądu)</option>
-        <option value="optymistyczna">Optymistyczna (5% wzrostu ceny prądu rocznie)</option>
+        <option value="optymistyczna">Realistyczna (5% wzrostu ceny prądu rocznie)</option>
       </select>
 
       <button onclick="obliczZwrot()">Oblicz zwrot inwestycji</button>
@@ -164,7 +164,7 @@ function oblicz() {
   let orientacja = parseFloat(document.getElementById('orientacja').value);
   let trybMagazynu = document.getElementById('trybMagazynu').value;
   const powierzchniaPanelu = 2.34; // Stała powierzchnia panelu w m²
-  const limitJednofazowy = 3.66; // Limit dla instalacji jednofazowej w kWp
+  const limitJednofazowy = 3.68; // Limit dla instalacji jednofazowej w kWp
 
   if (isNaN(zuzycie)) {
     alert("Podaj roczne zużycie energii!");
@@ -174,7 +174,7 @@ function oblicz() {
   // Obliczenie wstępnej mocy instalacji (z marginesem 20%)
   let mocWstępna = (zuzycie * 1.2) / 1000;
 
-  // Automatyczny wybór paneli: 450 Wp dla instalacji <= 3,66 kWp, 480 Wp powyżej
+  // Automatyczny wybór paneli: 450 Wp dla instalacji <= 3,68 kWp, 480 Wp powyżej
   let panel = mocWstępna <= limitJednofazowy ? 450 : 480;
   let typInstalacji = mocWstępna <= limitJednofazowy ? "jednofazowa" : "trójfazowa";
 
